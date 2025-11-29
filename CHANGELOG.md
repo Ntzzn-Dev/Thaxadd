@@ -22,3 +22,6 @@ Todas as mudanças neste projeto serão documentadas aqui.
 - Adição de um calendário para auto-calculo de dias atrasados.  
 - Correção de alguns aspectos Visuais.  
 - Adição de uma nova rota para a navegação com enter.  
+
+### version 1.3.1  
+- Correção do Maven.  
