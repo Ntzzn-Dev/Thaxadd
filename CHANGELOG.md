@@ -16,4 +16,9 @@ Todas as mudanças neste projeto serão documentadas aqui.
 - Adição de um método sequencial para valor inicial, quantidade e calcular, apenas apertando enter.  
 - Dias tornou-se o padrão.  
 - Implementação da copia de valor automáticamente após calculo. 
-- Adição de uma mensagem dizendo que o texto foi copiado.   
+- Adição de uma mensagem dizendo que o texto foi copiado.  
+
+### version 1.3  
+- Adição de um calendário para auto-calculo de dias atrasados.  
+- Correção de alguns aspectos Visuais.  
+- Adição de uma nova rota para a navegação com enter.  
