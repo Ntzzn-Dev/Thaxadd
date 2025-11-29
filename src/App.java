@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import javax.swing.*;
 
 public class App {
@@ -35,9 +36,12 @@ public class App {
         JTextField resultado = new JTextField(15);
         resultado.setEditable(false);
 
+        JLabel labelTempo = new JLabel(tipoDeDado == 0 ? "Meses:" : "Dias:");
+
         String[] unidades = { "Meses", "Dias" };
         JComboBox<String> unidadeTempo = new JComboBox<>(unidades);
         unidadeTempo.setPreferredSize(new Dimension(80, 25));
+        unidadeTempo.setSelectedIndex(tipoDeDado);
 
         JPanel painelMeses = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
         painelMeses.add(unid);
@@ -53,7 +57,7 @@ public class App {
         valorInicial.setToolTipText("Digite o valor base (ex: 183,84)");
         unid.setToolTipText("Quantidade de meses ou dias");
         unidadeTempo.setToolTipText("Tipo de unidade (Meses / Dias)");
-        taxaMes.setToolTipText("Juros compostos ao mês");
+        taxaMes.setToolTipText("Juros compostos ao mês (30 dias)");
         multa.setToolTipText("Multa em % sobre o valor inicial");
         resultado.setToolTipText("Valor final => valor inicial + taxa mensal + multa");
 
@@ -66,7 +70,7 @@ public class App {
         root.add(valorInicial, c);
 
         c.gridy = 2;
-        root.add(new JLabel("Dias / Meses:"), c);
+        root.add(labelTempo, c);
 
         c.gridy = 3;
         root.add(painelMeses, c);
@@ -105,10 +109,22 @@ public class App {
         unidadeTempo.addActionListener(e -> {
             String selecionado = (String) unidadeTempo.getSelectedItem();
             switch (selecionado) {
-                case "Meses" -> tipoDeDado = 1;
-                case "Dias" -> tipoDeDado = 2;
+                 case "Meses" -> {
+                    tipoDeDado = 0;
+                    labelTempo.setText("Meses:");
+                }
+                case "Dias" -> {
+                    tipoDeDado = 1;
+                    labelTempo.setText("Dias:");
+                }
             }
+            root.revalidate();
+            root.repaint();
         });
+
+        valorInicial.addActionListener(e -> unid.requestFocus());
+
+        unid.addActionListener(e -> calcular.doClick());
 
         calcular.addActionListener(e -> {
             try {
@@ -117,7 +133,7 @@ public class App {
                 double percentagemMes = Double.parseDouble(taxaMes.getText().replace('%', ' ')) / 100;
                 double percentagemMulta = Double.parseDouble(multa.getText().replace('%', ' ')) / 100;
 
-                if(tipoDeDado == 2){
+                if(tipoDeDado == 1){
                     percentagemMes = taxaDiaria;
                 }
                 
@@ -125,7 +141,14 @@ public class App {
 
                 double totalFinal = montante + valor * percentagemMulta; //Juros acumulados + multa sobre valor inicial
 
-                resultado.setText(String.format("R$ %.2f", totalFinal));
+                String textoFormatado = String.format("%.2f", totalFinal);
+                resultado.setText("R$ " + textoFormatado);
+
+                Toolkit.getDefaultToolkit()
+                    .getSystemClipboard()
+                    .setContents(new StringSelection(textoFormatado), null);
+
+                showToast(frame, "Valor copiado: " + textoFormatado);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(frame, "Valores inválidos!");
             }
@@ -137,5 +160,29 @@ public class App {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+    }
+
+    
+    public static void showToast(JFrame frame, String message) {
+        JWindow toast = new JWindow(frame);
+        toast.setLayout(new BorderLayout());
+
+        JLabel label = new JLabel(message);
+        label.setOpaque(true);
+        label.setBackground(new Color(0, 0, 0, 200));
+        label.setForeground(Color.WHITE);
+        label.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        toast.add(label, BorderLayout.CENTER);
+        toast.pack();
+
+        int x = frame.getX() + (frame.getWidth() - toast.getWidth()) / 2;
+        int framey = frame.getY() + frame.getHeight() - 100;
+        int y = framey + framey / 2;
+
+        toast.setLocation(x, y);
+        toast.setVisible(true);
+
+        new Timer(3500, e -> toast.setVisible(false)).start();
     }
 }
